@@ -10,6 +10,15 @@ interface UserMessageI {
     date: Date
 }
 interface BotState {
+    ticket: TicketI,
     conversation: (BotMessageI | UserMessageI)[]
-    addNewMessage: (message: BotMessageI | UserMessageI) => void
+    addNewMessage: (message: BotMessageI | UserMessageI) => void,
+    addTicketItem: (key: keyof TicketI, value: string | File) => void
+}
+
+interface TicketI {
+    userName: string,
+    email: string,
+    description: string,
+    image?: File,
 }
