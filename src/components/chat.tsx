@@ -1,17 +1,59 @@
 import { useEffect, useRef, useState } from "react";
+import { sendMessageApi } from "../api";
 import { useBotStore } from "../stores/bot-store";
 import { BotMessage } from "./botMessage";
+import { QuickActionButton } from "./quickActionButton";
 import { UserMessage } from "./userMessage";
 
 export const ChatBot = ({ close }: { close: () => void; }) => {
+    const { isTicketCreationSTart, addTicketItem, ticket, toggleTicketCreation } = useBotStore();
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const conversation = useBotStore().conversation;
     const addMessage = useBotStore().addNewMessage;
     const [message, setMessage] = useState('');
-    const sendMessage = () => {
-        setMessage('');
+    const sendMessage = async () => {
+        console.log(message);
         if (message != '')
             addMessage({ id: 'a', date: new Date(), query: message });
+        console.log(isTicketCreationSTart)
+        if (isTicketCreationSTart) {
+            console.log(ticket)
+            if (ticket.userName == '') {
+                addTicketItem("userName", message)
+                const response = await sendMessageApi("userName", message)
+                if (response.status == 200)
+                    addMessage({ id: 'b', response: response.data.message, showFeedback: response.data.haveFeedBack });
+            } else if (ticket.email == '') {
+                console.log("email", ticket.email)
+                if (!message.includes("@"))
+                    addMessage({ id: 'b', response: "entrez un email valide", showFeedback: false });
+                else {
+                    addTicketItem("email", message)
+                    const response = await sendMessageApi("email", message)
+                    if (response.status == 200)
+                        addMessage({ id: 'b', response: response.data.message, showFeedback: response.data.haveFeedBack });
+                }
+            } else if (ticket.description == '') {
+                console.log("desc", ticket.description)
+                addTicketItem("description", message)
+                const response = await sendMessageApi("description", message)
+                if (response.status == 200) {
+                    addMessage({ id: 'b', response: response.data.message, showFeedback: response.data.haveFeedBack });
+                    addMessage({ id: 'b', message: "Absolument", action: () => { } });
+                    addMessage({ id: 'b', message: "Non pas la peine", action: () => { } });
+                }
+                // toggleTicketCreation();
+            } else {
+                addMessage({ id: 'b', response: "veillez confirmer la creation svp", showFeedback: false });
+                addMessage({ id: 'b', message: "Absolument", action: () => { } });
+                addMessage({ id: 'b', message: "Non pas la peine", action: () => { } });
+            }
+        } else {
+            const response = await sendMessageApi("default", message)
+            if (response.status == 200)
+                addMessage({ id: 'b', response: response.data.message, showFeedback: response.data.haveFeedBack });
+        }
+        setMessage('');
     }
     const onEnterKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key == "Enter") sendMessage()
@@ -58,8 +100,10 @@ export const ChatBot = ({ close }: { close: () => void; }) => {
                     <div className="conversation h-[490px]  relative overflow-y-auto">
                         {conversation.map((message, i) => {
                             if ((message as UserMessageI).query != undefined)
-                                return <UserMessage message={message as UserMessageI} />
-                            else return <BotMessage islast={i == conversation.length - 1} message={message as BotMessageI} />
+                                return <UserMessage key={i} message={message as UserMessageI} />
+                            else if ((message as quickActionMessageI).action != undefined)
+                                return <QuickActionButton key={i} onClick={() => (message as quickActionMessageI).action()} text={(message as quickActionMessageI).message} />
+                            else return <BotMessage key={i} islast={i == conversation.length - 1} message={message as BotMessageI} />
                         })}
                         <div ref={messagesEndRef} />
                         {/* <BotMessage />
