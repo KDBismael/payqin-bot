@@ -11,6 +11,16 @@ export const ChatBot = ({ close }: { close: () => void; }) => {
     const conversation = useBotStore().conversation;
     const addMessage = useBotStore().addNewMessage;
     const [message, setMessage] = useState('');
+    const createTicket = () => {
+        addMessage({ id: 'b', response: "la creation de votre ticket a ete effectuer avec success. Vous recevrerez un email de confirmation.", showFeedback: false });
+        addMessage({ id: 'b', response: "Nous pouvons toujours continuer à discuter", showFeedback: false });
+        toggleTicketCreation();
+        //call api route for ticket creation
+    }
+    const Continue = () => {
+        addMessage({ id: 'b', response: "N'hesitez pas a creer un autre ticket si vous ressentez le besoin", showFeedback: false });
+        toggleTicketCreation();
+    }
     const sendMessage = async () => {
         console.log(message);
         if (message != '')
@@ -39,14 +49,14 @@ export const ChatBot = ({ close }: { close: () => void; }) => {
                 const response = await sendMessageApi("description", message)
                 if (response.status == 200) {
                     addMessage({ id: 'b', response: response.data.message, showFeedback: response.data.haveFeedBack });
-                    addMessage({ id: 'b', message: "Absolument", action: () => { } });
-                    addMessage({ id: 'b', message: "Non pas la peine", action: () => { } });
+                    addMessage({ id: 'b', message: "Absolument", action: createTicket });
+                    addMessage({ id: 'b', message: "Non pas la peine", action: Continue });
                 }
                 // toggleTicketCreation();
             } else {
-                addMessage({ id: 'b', response: "veillez confirmer la creation svp", showFeedback: false });
-                addMessage({ id: 'b', message: "Absolument", action: () => { } });
-                addMessage({ id: 'b', message: "Non pas la peine", action: () => { } });
+                addMessage({ id: 'b', response: "voullez vous confirmer la creation du ticket", showFeedback: false });
+                addMessage({ id: 'b', message: "Absolument", action: createTicket });
+                addMessage({ id: 'b', message: "Non pas la peine", action: Continue });
             }
         } else {
             const response = await sendMessageApi("default", message)
@@ -97,10 +107,10 @@ export const ChatBot = ({ close }: { close: () => void; }) => {
                             </div>
                         </div>
                     </div>
-                    <div className="conversation h-[490px]  relative overflow-y-auto">
+                    <div className="conversation h-[490px]  relative overflow-y-auto overflow-x-hidden">
                         {conversation.map((message, i) => {
                             if ((message as UserMessageI).query != undefined)
-                                return <UserMessage key={i} message={message as UserMessageI} />
+                                return <div className="w-full flex justify-end"><UserMessage key={i} message={message as UserMessageI} /></div>
                             else if ((message as quickActionMessageI).action != undefined)
                                 return <QuickActionButton key={i} onClick={() => (message as quickActionMessageI).action()} text={(message as quickActionMessageI).message} />
                             else return <BotMessage key={i} islast={i == conversation.length - 1} message={message as BotMessageI} />
