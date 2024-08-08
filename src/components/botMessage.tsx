@@ -13,6 +13,7 @@ export const BotMessage = (props: BotMessagePropsI) => {
     const { message, islast, className, ...restProps } = props;
     const addMessage = useBotStore().addNewMessage;
     const contactTerSupport = async () => {
+        addMessage({ id: 'b', query: "contact support", });
         const res = await sendMessageApi('contact support', "👎 Non");
         setTimeout(() => {
             addMessage({ id: 'b', response: "Nous avons besoins de certaines informations pour la creation de votre ticket", showFeedback: false });
@@ -22,7 +23,10 @@ export const BotMessage = (props: BotMessagePropsI) => {
         }, 1000);
     }
     const continuer = () => {
-        addMessage({ id: 'no', date: new Date(), response: "Vous pouvez continuer, nous essayerons de vous satisfaire" })
+        addMessage({ id: 'b', query: "Continuer", });
+        setTimeout(() => {
+            addMessage({ id: 'no', date: new Date(), response: "Vous pouvez continuer, nous essayerons de vous satisfaire" })
+        }, 1000);
     }
     const onNegative = () => {
         addMessage({ id: 'no', date: new Date(), query: "👎 Non" })
@@ -39,7 +43,7 @@ export const BotMessage = (props: BotMessagePropsI) => {
         </div>
         {message.showFeedback ? <>
             <div className="anchors quick-replies-text px-3 py-4 rounded-2xl my-1 mx-4 w-fit" style={{ wordWrap: 'break-word', lineHeight: "20px", whiteSpace: "pre-wrap", borderTopLeftRadius: "3px", background: "rgb(255, 255, 255)", color: "rgb(0, 0, 0)" }}>
-                <span>Was this helpfull?</span>
+                <span>Ceci a vous été utile?</span>
             </div>
             {islast ?
                 <div className="flex gap-3 justify-center mb-2">
