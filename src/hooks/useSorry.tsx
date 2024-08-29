@@ -7,7 +7,7 @@ const useSorry = () => {
     useEffect(() => {
         if (!isSorry) return;
         setTimeout(() => {
-            addNewMessage({ id: 'k', response: "nous somme desole d'entendre cela", probability: 1, date: new Date() })
+            addNewMessage({ id: 'k', response: "nous sommes desole d'entendre cela", probability: 1, date: new Date() })
             addNewMessage({ id: 'j', message: 'menu principal', action: () => { } })
             addNewMessage({ id: 'j', message: 'Contacter le support', action: () => { } })
         }, 3000);

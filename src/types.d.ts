@@ -20,13 +20,29 @@ interface BotState {
     toggleTicketCreation: () => void,
     ticket: TicketI,
     conversation: (BotMessageI | UserMessageI | quickActionMessageI)[]
+    conversationH: (BotMessageI | UserMessageI)[]
+    addNewMessageH: (message: BotMessageI | UserMessageI) => void,
     addNewMessage: (message: BotMessageI | UserMessageI | quickActionMessageI) => void,
     addTicketItem: (key: keyof TicketI, value: string | File) => void
+    setConversationIds: (data: conversationIds) => void
+    conversationIds: conversationIds
+}
+
+interface conversationIds {
+    conversationId: string;
+    ticketId: string;
 }
 
 interface TicketI {
-    userName: string,
+    username: string,
     email: string,
     description: string,
     image?: File,
+}
+interface MessageI {
+    sender: string;
+    recipient: string;
+    text: string;
+    conversation: string;
+    _id: string
 }
